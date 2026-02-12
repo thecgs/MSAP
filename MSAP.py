@@ -115,7 +115,7 @@ step4. The AA2Codon.py script used to protein alignment convert codon aligment.
 step5. The trimAlnSeq.py script used to trim codon seqence.
 
 Nucletic or Protein Seqence Alignment Pipeline:
-step1. Alignment software (such as mafft (v7.525), muscle (v5.2), clustalw2 (v2.1), prank (v170427)) to align nucletic or protein seqence.
+step1. Alignment software (such as mafft, muscle, clustalw2, prank to align nucletic or protein seqence.
 step2. The trimAlnSeq.py script used to trim nucletic or protein seqence.
 
 used example:
@@ -172,7 +172,7 @@ clustalw2 and prank does not allow multiple sequences to use the same name.
     optional.add_argument('-st', '--seqtype', metavar='str', default='codon', choices=['codon', 'prot', 'nucl'],
                           help=f'Sequence type. such as nucl, prot or codon. default=codon')      
     optional.add_argument('-g', '--genetic_code', metavar='int', default=1,
-                          type=int, help='Genetic code, only "--model codon" take effect. default=1')
+                          type=int, help='Genetic code, only "--seqtype codon" take effect. default=1')
     optional.add_argument('-h', '--help', action='help',
                           help="Show program's help message and exit.")
     optional.add_argument('-v', '--version', action='version', version='v2.00',
