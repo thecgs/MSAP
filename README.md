@@ -19,7 +19,7 @@ Note:
 
 ## Usage
 
-### Main Script  Usage:
+### Main Script Usage:
 
 ```
 Python MSAP.py -h
@@ -94,7 +94,7 @@ optional arguments:
 Date:2026/02/12 Author:Guisen Chen Email:thecgs001@foxmail.com
 ```
 
-### Format Conversion
+### Format Conversion:
 The default format for multiple sequence alignment files is FASTA. You can use fasta2axt.py, fasta2nex.py, and fasta2phy.py to convert them to AXT, NEXUS, and PHYLIP formats respectively.
 ```
 fasta2axt.py -i input.fasta -o output.axt
@@ -102,19 +102,19 @@ fasta2nex.py -i input.fasta -o output.nex
 fasta2phy.py -i input.fasta -o output.phy
 ```
 
-### Split Codon Alignment
+### Split Codon Alignment:
 Split the multiple sequence alignment of codons in FASTA format into positions 1, 2, and 3.
 ```
-split_codon_seqence_alignment.py codon_aln.fasta
+split_codon_seqence_alignment.py codon.aln.fasta
 ```
 
-###  Construct a Super Alignment Matrix.
+### Construct a Super Alignment Matrix:
 Merge multiple gene multiple sequence alignment files of FASTA format into a single superalignment matrix.
 ```
 get_supergenes.py -i aln1.fasta aln2.fasta aln3.fasta -o supergene.aln.fasta
 ```
 
-###  Four-Fold Degenerated Sites
+### Four-Fold Degenerated Sites:
 Batch calculations of 4dtv (transversion rate on 4-fold degenerate sites) are performed using HKY substitution models.
 ```
 calulate_4dtv_and_correction.py -i aln1.fasta aln2.fasta aln3.fasta -o 4dtv.tsv -g 1
@@ -122,11 +122,12 @@ calulate_4dtv_and_correction.py -i aln1.fasta aln2.fasta aln3.fasta -o 4dtv.tsv 
 
 Extract four-fold degenerate sites from a multiple sequence alignment file in FASTA format.
 ```
-extract_4-fold_degenerated_sites.py -i aln.fasta  -o 4-fold_degenerated_sites.aln.fasta -g 1
+extract_4-fold_degenerated_sites.py -i aln.fasta -o 4-fold_degenerated_sites.aln.fasta -g 1
 ```
 
 ### Other Script:
-AA2Codon.py script is  an alternative to [pal2nal](https://github.com/liaochenlanruo/PAL2NAL)
+AA2Codon.py script is an alternative to [pal2nal](https://github.com/liaochenlanruo/PAL2NAL)
 
 
-trimAlnSeq.py script is  an alternative to [trimal](https://github.com/inab/trimal)
+trimAlnSeq.py script is an alternative to [trimal](https://github.com/inab/trimal)
+
