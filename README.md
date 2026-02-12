@@ -8,9 +8,8 @@ Supports four multiple sequence alignment softwares (mafft, muscle, clustalw2, p
 
 ```
 git clone https://github.com/thecgs/MSAP.git
-chmod +x *.py
 pip install biopython
-conda install mafft
+conda install bioconda::mafft
 ```
 
 Note:
