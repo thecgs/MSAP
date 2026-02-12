@@ -30,7 +30,7 @@ Run multiple sequence alignment pipeline (MSAP).
 Codon Seqence Alignment Pipeline:
 step1. Remove stop codon.
 step2. The biopython used to CDS seqence convert to protein seqence.
-step3. Alignment software (such as mafft (v7.525), muscle (v5.2), clustalw2 (v2.1), prank (v170427)) to align protein seqence.
+step3. Alignment software (such as mafft, muscle, clustalw2, prank to align protein seqence.
 step4. The AA2Codon.py script used to protein alignment convert codon aligment.
 step5. The trimAlnSeq.py script used to trim codon seqence.
 
@@ -87,7 +87,7 @@ optional arguments:
                         alignment.
   -st, --seqtype str    Sequence type. such as nucl, prot or codon. default=codon
   -g, --genetic_code int
-                        Genetic code, only "--model codon" take effect. default=1
+                        Genetic code, only "--seqtype codon" take effect. default=1
   -h, --help            Show program's help message and exit.
   -v, --version         Show program's version number and exit.
 
@@ -130,4 +130,5 @@ AA2Codon.py script is an alternative to [pal2nal](https://github.com/liaochenlan
 
 
 trimAlnSeq.py script is an alternative to [trimal](https://github.com/inab/trimal)
+
 
