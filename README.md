@@ -127,4 +127,6 @@ extract_4-fold_degenerated_sites.py -i aln.fasta  -o 4-fold_degenerated_sites.al
 
 ### Other Script:
 AA2Codon.py script is  an alternative to [pal2nal](https://github.com/liaochenlanruo/PAL2NAL)
+
+
 trimAlnSeq.py script is  an alternative to [trimal](https://github.com/inab/trimal)
