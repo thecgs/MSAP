@@ -115,7 +115,7 @@ step4. The AA2Codon.py script used to protein alignment convert codon aligment.
 step5. The trimAlnSeq.py script used to trim codon seqence.
 
 Nucletic or Protein Seqence Alignment Pipeline:
-step1. Alignment software (such as mafft, muscle, clustalw2, prank to align nucletic or protein seqence.
+step1. Alignment software (such as mafft (v7.525), muscle (v5.2), clustalw2 (v2.1), prank (v170427)) to align nucletic or protein seqence.
 step2. The trimAlnSeq.py script used to trim nucletic or protein seqence.
 
 used example:
@@ -169,10 +169,16 @@ clustalw2 and prank does not allow multiple sequences to use the same name.
                           choices=["mafft", "muscle", "prank", "clustalw2"], help='Align software. such as mafft, muscle, clustalw2, prank. default=mafft')    
     optional.add_argument('-n', '--notrim', action='store_true',
                           help=f'No trim align file. The trimAlnSeq.py script used to trim codon, nucletic, or protein alignment.')
+    optional.add_argument('-G', '--G', default=0, type=float, metavar='float',
+                          help=f'Gap maxinum ratio for per site. range 0-1. default=0')
+    optional.add_argument('-N', '--N', default=0, type=float, metavar='float',
+                          help=f'N maxinum ratio for per site in Nucl or Codon sequence. range 0-1. default=0')
+    optional.add_argument('-X', '--X', default=0, type=float, metavar='float',
+                          help=f'X maxinum ratio for per site in protein sequence. range 0-1. default=0')
     optional.add_argument('-st', '--seqtype', metavar='str', default='codon', choices=['codon', 'prot', 'nucl'],
                           help=f'Sequence type. such as nucl, prot or codon. default=codon')      
     optional.add_argument('-g', '--genetic_code', metavar='int', default=1,
-                          type=int, help='Genetic code, only "--seqtype codon" take effect. default=1')
+                          type=int, help='Genetic code, only "--model codon" take effect. default=1')
     optional.add_argument('-h', '--help', action='help',
                           help="Show program's help message and exit.")
     optional.add_argument('-v', '--version', action='version', version='v2.00',
@@ -258,12 +264,15 @@ if seqtype == "codon":
     #subprocess.run(cmd, shell=True, capture_output=True)
     subprocess.run(cmd, shell=True)
     if notrim == False:
-        cmd = f"{os.path.join(sys.path[0], 'trimAlnSeq.py')} -i  {prefix}.{align_software}.codon.aln -o {prefix}.{align_software}.codon.trimal.aln -st codon"
+        cmd = f"{os.path.join(sys.path[0], 'trimAlnSeq.py')} -i  {prefix}.{align_software}.codon.aln -o {prefix}.{align_software}.codon.trimal.aln -st codon -G {args.G} -N {args.N}"
         subprocess.run(cmd, shell=True, capture_output=True)
 else:
     ## run trimAlnSeq.py
     if notrim == False:
-        cmd = f"{os.path.join(sys.path[0], 'trimAlnSeq.py')} -i  {prefix}.{align_software}.{seqtype}.aln -o {prefix}.{align_software}.{seqtype}.trimal.aln -st {seqtype}"
+        if seqtype == 'nucl':
+            cmd = f"{os.path.join(sys.path[0], 'trimAlnSeq.py')} -i  {prefix}.{align_software}.{seqtype}.aln -o {prefix}.{align_software}.{seqtype}.trimal.aln -st {seqtype} -G {args.G} -N {args.N}"
+        else:
+            cmd = f"{os.path.join(sys.path[0], 'trimAlnSeq.py')} -i  {prefix}.{align_software}.{seqtype}.aln -o {prefix}.{align_software}.{seqtype}.trimal.aln -st {seqtype} -G {args.G} -X {args.X}"
         subprocess.run(cmd, shell=True)
         
 if seqtype == "codon":

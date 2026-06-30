@@ -5,45 +5,45 @@ import sys
 import gzip
 import argparse
 from Bio import SeqIO
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Trim fasta format alignment sequence.", add_help=False, 
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     epilog='Date:2025/09/29 Author:Guisen Chen Email:thecgs001@foxmail.com')
+                                     epilog='Date:2026/06/21 Author:Guisen Chen Email:thecgs001@foxmail.com')
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
     required.add_argument('-i', '--input', metavar='str', required=True,
                           help='A input file of fasta format.')
     optional.add_argument('-o', '--output', metavar='str', default='-',
-                          help='A output file of fasta format. default=None.')
+                          help='A output file of fasta format. default=None')
     optional.add_argument('-st', '--seqtype', metavar='str', default='codon', choices=['codon', 'prot', 'nucl'],
                           help=f'Sequence type. such as nucl, prot or codon. default=codon')
-    optional.add_argument('-kg', '--keepgap', action='store_true',
-                          help=f'Keep the column containing gap.')
-    optional.add_argument('-kn', '--keepN', action='store_true',
-                          help=f'Keep the column containing the codon of N character.')
-    optional.add_argument('-kx', '--keepX', action='store_true',
-                          help=f'The column containing X characters is reserved. For the protein sequence.')
+    
+    optional.add_argument('-G', '--G', default=0, type=float, metavar='float',
+                          help=f'Gap maxinum ratio for per site. range 0-1. default=0')
+    optional.add_argument('-N', '--N', default=0, type=float, metavar='float',
+                          help=f'N maxinum ratio for per site in Nucl or Codon sequence. range 0-1. default=0')
+    optional.add_argument('-X', '--X', default=0, type=float, metavar='float',
+                          help=f'X maxinum ratio for per site in protein sequence. range 0-1. default=0')
+    
     optional.add_argument('-ra', '--removeall', action='store_true',
                           help=f'Remove all same columns.')
     optional.add_argument('-h', '--help', action='help',
                           help="Show program's help message and exit.")
-    optional.add_argument('-v', '--version', action='version', version='v2.00',
+    optional.add_argument('-v', '--version', action='version', version='v2.01',
                           help="Show program's version number and exit.")
     
     args = parser.parse_args()
     
     infile = args.input
     outfile = args.output
-    kg = args.keepgap
-    kn = args.keepN
-    kx = args.keepX
     ra = args.removeall
     st = args.seqtype
+    G = args.G
+    N = args.N
+    X = args.X
     
-    indexs = []
-    aln = defaultdict(list)
     if infile.endswith('.gz'):
         handle = gzip.open(infile, 'rt')
     elif infile == "-":
@@ -51,74 +51,62 @@ if __name__ == '__main__':
     else:
         handle = open(infile, 'r')
     
-    for record in SeqIO.parse(handle, 'fasta'):
-        #print("\n"+record.id, 'length:', len(record.seq), file=sys.stderr)
-        if st == 'codon':
+    ## create index
+    indexs = []
+    aln = defaultdict(list)
+    if st!='codon':
+        Index2Seq = defaultdict(list)
+        for record in SeqIO.parse(handle, 'fasta'):
+            for n, s in enumerate(str(record.seq.upper())):
+                aln[record.id].append(s)
+                Index2Seq[n].append(s)
+        handle.close()
+    else:
+        Index2Seq = defaultdict(list)
+        for record in SeqIO.parse(handle, 'fasta'):
             for n, i in enumerate(range(0, len(record.seq), 3)):
-                #print(n, file=sys.stderr, end='\r')
                 codon = str(record.seq.upper())[i:i+3]
                 aln[record.id].append(codon)
-                
-                if (kn == False) or (kg == False):
-                    if ('N' in codon) or ('-' in codon):
-                        indexs.append(n)
-                        
-                if (kn == False) or (kg == True):
-                    if ('N' in codon):
-                        indexs.append(n)
-                        
-                if (kn == True) or (kg == False):
-                    if ('-' in codon):
-                        indexs.append(n)
-                        
-        elif st == 'prot':
-            for n, a in enumerate(record.seq.upper()):
-                #print(n, file=sys.stderr, end='\r')
-                aln[record.id].append(a)
-                if (kx == False) or (kg == False):
-                    if ('X' == a) or ('-' == a):
-                        indexs.append(n)
-                        
-                if (kx == False) or (kg == True):
-                    if ('X' == a):
-                        indexs.append(n)
-                        
-                if (kx == True) or (kg == False):
-                    if ('-' == a):
-                        indexs.append(n)
-                        
-        elif st == 'nucl':
-            for n, a in enumerate(record.seq.upper()):
-                #print(n, file=sys.stderr, end='\r')
-                aln[record.id].append(a)
-                if (kn == False) or (kg == False):
-                    if ('N' == a) or ('-' == a):
-                        indexs.append(n)
-                        
-                if (kn == False) or (kg == True):
-                    if ('N' == a):
-                        indexs.append(n)
-                        
-                if (kn == True) or (kg == False):
-                    if ('-' == a):
-                        indexs.append(n)
-    handle.close()
+                if 'N' in codon:
+                    Index2Seq[n].append("N")
+                elif '-' in codon:
+                    Index2Seq[n].append("-")
+                else:
+                    Index2Seq[n].append(codon)
+        handle.close()
     
-    if ra == True:
-        ref = list(aln.values())[0]
-        for n, i in enumerate(ref):
-            _status = False
-            for s in list(aln.keys())[1:]:
-                if aln[s][n] != ref[n]:
-                    _status = True
-            if _status == False:
+    #print(Index2Seq)
+    ## get filter site index
+    if st!='prot':
+        seqlen = len(Index2Seq.keys())
+        seqnum = len(Index2Seq[0])
+        for n in range(0, seqlen):
+            N_Ratio = Counter(Index2Seq[n]).get("N", 0) / seqnum
+            gap_Ratio = Counter(Index2Seq[n]).get("-", 0) / seqnum
+            if N < N_Ratio:
+                indexs.append(n)
+            if G < gap_Ratio:
+                indexs.append(n)
+            if (ra == True) and (len(Counter(Index2Seq[n]))) == 1:
+                indexs.append(n)
+    else:
+        seqlen = len(Index2Seq.keys())
+        seqnum = len(Index2Seq[0])
+        for n in range(0, seqlen):
+            X_Ratio = Counter(Index2Seq[n]).get("X", 0) / seqnum
+            gap_Ratio = Counter(Index2Seq[n]).get("-", 0) / seqnum
+            if X < X_Ratio:
+                indexs.append(n)
+            if G < gap_Ratio:
+                indexs.append(n)
+            if (ra == True) and (len(Counter(Index2Seq[n]))) == 1:
                 indexs.append(n)
                 
     indexs = sorted(set(indexs))
-    
+    #print(indexs)
     if len(indexs) == len(list(aln.values())[0]):
         sys.exit()
-
+        
     if outfile == "-":
         out = sys.stdout
     elif outfile.endswith('.gz'):
@@ -133,5 +121,4 @@ if __name__ == '__main__':
             if n not in indexs:
                 seqs += codon
         print(seqs, file=out)
-    
     out.close()
