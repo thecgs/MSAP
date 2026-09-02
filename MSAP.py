@@ -261,10 +261,12 @@ else:
 ## run AA2codon.py
 if seqtype == "codon":
     cmd = f"{os.path.join(sys.path[0], 'AA2Codon.py')} -c {infile} -p {prefix}.{align_software}.prot.aln -o {prefix}.{align_software}.codon.aln"
-    #subprocess.run(cmd, shell=True, capture_output=True)
-    subprocess.run(cmd, shell=True)
+    subprocess.run(cmd, shell=True, capture_output=True)
+    #subprocess.run(cmd, shell=True)
     if notrim == False:
         cmd = f"{os.path.join(sys.path[0], 'trimAlnSeq.py')} -i  {prefix}.{align_software}.codon.aln -o {prefix}.{align_software}.codon.trimal.aln -st codon -G {args.G} -N {args.N}"
+        subprocess.run(cmd, shell=True, capture_output=True)
+        cmd = f"{os.path.join(sys.path[0], 'trimAlnSeq.py')} -i  {prefix}.{align_software}.prot.aln -o {prefix}.{align_software}.prot.trimal.aln -st prot -G {args.G} -X {args.N}"
         subprocess.run(cmd, shell=True, capture_output=True)
 else:
     ## run trimAlnSeq.py
