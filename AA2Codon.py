@@ -38,23 +38,37 @@ if __name__ == '__main__':
     
     Mapping = dict()
     for j, record in enumerate(SeqIO.parse(cdsfile, 'fasta')):
-        #Mapping[record.id] = textwrap.wrap(str(record.seq.upper()), 3)
+        if len(record.seq) % 3 != 0:
+            raise ValueError(
+                f"{record.id}: CDS length {len(record.seq)} is not divisible by 3"
+                )
+                
         Mapping[record.id] = textwrap.wrap(str(record.seq.upper()), 3)
-    #print(Mapping)
+        
     for j, record in enumerate(SeqIO.parse(protalnfile, 'fasta')):
         print(">"+record.id, file=out)
-        s = ""
+        s = []
         idx = 0
         for i in record.seq.upper():
             if i != '-':
-                s += Mapping[record.id][idx]
+                s.append(Mapping[record.id][idx])
                 if genetic_code!=None:
                     if str(Seq.Seq(Mapping[record.id][idx]).translate(table=genetic_code)) != i:
-                        print("index:", idx, "->", str(Seq.Seq(Mapping[record.id]).translate(table=genetic_code)))
-                        sys.exit()
+                        codon = Mapping[record.id][idx]
+                        aa = str(Seq.Seq(codon).translate(table=genetic_code))
+                        if aa != i:
+                            print(
+                                record.id,
+                                "codon index:", idx,
+                                "codon:", codon,
+                                "translated:", aa,
+                                "protein:", i,
+                                file=sys.stderr
+                            )
+                        sys.exit(1)
                 idx += 1
             else:
-                s += '---'
-        print(s, file=out)
+                s.append('---')
+        print("".join(s), file=out)
         
     out.close()
